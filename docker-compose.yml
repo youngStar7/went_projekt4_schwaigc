@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  db:
+    image: mariadb:10.6
+    container_name: sulu-mariadb
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: sulu
+      MYSQL_USER: sulu
+      MYSQL_PASSWORD: sulu
+      TZ: Europe/Berlin
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  db_data:
+    driver: local
