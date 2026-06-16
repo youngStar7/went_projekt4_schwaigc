@@ -1,0 +1,3 @@
+app_website_api:
+    type: portal
+    resource: ../routing/website_api_portal.yaml

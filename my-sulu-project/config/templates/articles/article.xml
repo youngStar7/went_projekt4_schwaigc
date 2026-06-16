@@ -6,7 +6,7 @@
     <key>article</key>
 
     <view>articles/article</view>
-    <controller>Sulu\Content\UserInterface\Controller\Website\ContentController::indexAction</controller>
+    <controller>Sulu\Bundle\HeadlessBundle\Controller\HeadlessWebsiteController::indexAction</controller>
     <cacheLifetime>604800</cacheLifetime>
 
     <meta>
@@ -27,11 +27,13 @@
             <tag name="sulu.rlp.part"/>
         </property>
 
-        <property name="url" type="page_tree_route">
+        <property name="url" type="route" mandatory="true">
             <meta>
                 <title lang="en">Resourcelocator</title>
                 <title lang="de">Adresse</title>
             </meta>
+
+            <tag name="sulu.rlp"/>
         </property>
 
         <property name="article" type="text_editor">
