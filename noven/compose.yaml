@@ -1,0 +1,60 @@
+version: '3'
+
+services:
+  ###> doctrine/doctrine-bundle ###
+  database:
+    image: mysql:${MYSQL_VERSION:-8.4}
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-noven}
+      MYSQL_USER: ${MYSQL_USER:-app}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-ChangeMe}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-ChangeMe}
+      MYSQL_ROOT_HOST: '%'
+    volumes:
+      - database_/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - sulu_network
+  ###< doctrine/doctrine-bundle ###
+
+  php:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      - database
+    environment:
+      APP_ENV: dev
+      DATABASE_URL: ${DATABASE_URL}
+    networks:
+      - sulu_network
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - .:/var/www/html
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - php
+    networks:
+      - sulu_network
+
+  adminer:
+    image: adminer
+    ports:
+      - "8081:8080"
+    depends_on:
+      - database
+    networks:
+      - sulu_network
+
+networks:
+  sulu_network:
+
+volumes:
+    - database_/var/lib/mysql   # ← Hier der Bindestrich ist korrekt
