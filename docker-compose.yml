@@ -1,8 +1,6 @@
-version: '3.8'
-
 services:
   db:
-    image: mariadb:10.6
+    image: mariadb:11.4
     container_name: sulu-mariadb
     restart: unless-stopped
     environment:
@@ -16,10 +14,24 @@ services:
     volumes:
       - db_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
       interval: 10s
       timeout: 5s
       retries: 5
+
+  phpmyadmin:
+    image: phpmyadmin:5
+    container_name: sulu-phpmyadmin
+    restart: unless-stopped
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      UPLOAD_LIMIT: 256M
+    ports:
+      - "8080:80"
+    depends_on:
+      db:
+        condition: service_healthy
 
 volumes:
   db_data:

@@ -1,0 +1,25 @@
+# Next.js
+.next/
+out/
+
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Env files (keep .env.local out of git)
+.env*.local
+
+# Build output
+dist/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts

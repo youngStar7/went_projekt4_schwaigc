@@ -1,0 +1,5 @@
+app.api.articles:
+    path: /api/articles
+    defaults:
+        _controller: App\Controller\Website\ArticleController::listAction
+    methods: [GET]
