@@ -1,0 +1,4 @@
+# Database dumps / backups
+backup_*.sql
+*.dump
+db_dump_err.txt

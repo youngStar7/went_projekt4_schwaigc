@@ -1,8 +1,6 @@
-version: '3.8'
-
 services:
   db:
-    image: mariadb:10.6
+    image: mariadb:11.4
     container_name: sulu-mariadb
     restart: unless-stopped
     environment:
@@ -16,7 +14,7 @@ services:
     volumes:
       - db_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
       interval: 10s
       timeout: 5s
       retries: 5
