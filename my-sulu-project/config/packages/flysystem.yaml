@@ -2,6 +2,7 @@
 flysystem:
     storages:
         default.storage:
-            adapter: 'local'
-            options:
+            # New discoverable format (flysystem-bundle >= 3.5): adapter name as key
+            # instead of the deprecated "adapter" + "options" keys.
+            local:
                 directory: '%kernel.project_dir%/var/storage/default'
