@@ -1,5 +1,5 @@
 import type { SuluPage } from "@/lib/sulu";
-import { resolveUrl } from "@/lib/sulu";
+import { resolveUrl, mediaUrl, formatPrice } from "@/lib/sulu";
 
 interface Props {
   page: SuluPage;
@@ -11,6 +11,11 @@ export default function PageContent({ page }: Props) {
   const title = content?.title as string | undefined;
   const article = content?.article as string | undefined;
   const canonicalUrl = resolveUrl(content?.url);
+
+  const description = content?.description;
+  const price = formatPrice(content?.price);
+  const image = mediaUrl(content?.image);
+  const category = content?.category?.name;
 
   const seoTitle = extension?.seo?.title;
   const seoDescription = extension?.seo?.description;
@@ -48,7 +53,47 @@ export default function PageContent({ page }: Props) {
         </p>
       )}
 
+      {category && (
+        <span
+          style={{
+            fontSize: "0.75rem",
+            textTransform: "uppercase",
+            letterSpacing: "0.05em",
+            color: "#6b7280",
+          }}
+        >
+          {category}
+        </span>
+      )}
+
       {title && <h1 className="page-title">{title}</h1>}
+
+      {image && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={image}
+          alt={content?.image?.title ?? title ?? ""}
+          style={{
+            width: "100%",
+            maxWidth: "480px",
+            borderRadius: "8px",
+            margin: "1rem 0",
+            objectFit: "cover",
+          }}
+        />
+      )}
+
+      {price && (
+        <p style={{ fontSize: "1.4rem", fontWeight: 700, margin: "0.5rem 0" }}>
+          {price}
+        </p>
+      )}
+
+      {description && (
+        <p style={{ fontSize: "1.05rem", color: "#444", marginBottom: "1rem" }}>
+          {description}
+        </p>
+      )}
 
       {canonicalUrl && (
         <p style={{ fontSize: "0.8rem", color: "#999", marginBottom: "1rem" }}>

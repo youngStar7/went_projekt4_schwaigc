@@ -10,8 +10,8 @@
     <cacheLifetime>604800</cacheLifetime>
 
     <meta>
-        <title lang="en">Article</title>
-        <title lang="de">Artikel</title>
+        <title lang="en">Product</title>
+        <title lang="de">Produkt</title>
     </meta>
 
     <properties>
@@ -36,10 +36,47 @@
             <tag name="sulu.rlp"/>
         </property>
 
+        <property name="price" type="number">
+            <meta>
+                <title lang="en">Price</title>
+                <title lang="de">Preis</title>
+                <info_text lang="en">Price in EUR, e.g. 19.99</info_text>
+                <info_text lang="de">Preis in EUR, z. B. 19.99</info_text>
+            </meta>
+            <params>
+                <param name="step" value="0.01"/>
+                <param name="min" value="0"/>
+            </params>
+        </property>
+
+        <property name="category" type="single_category_selection">
+            <meta>
+                <title lang="en">Category</title>
+                <title lang="de">Kategorie</title>
+            </meta>
+        </property>
+
+        <property name="image" type="single_media_selection">
+            <meta>
+                <title lang="en">Image</title>
+                <title lang="de">Bild</title>
+            </meta>
+            <params>
+                <param name="types" value="image"/>
+            </params>
+        </property>
+
+        <property name="description" type="text_area">
+            <meta>
+                <title lang="en">Description</title>
+                <title lang="de">Beschreibung</title>
+            </meta>
+        </property>
+
         <property name="article" type="text_editor">
             <meta>
-                <title lang="en">Article</title>
-                <title lang="de">Artikel</title>
+                <title lang="en">Details</title>
+                <title lang="de">Details</title>
             </meta>
         </property>
     </properties>

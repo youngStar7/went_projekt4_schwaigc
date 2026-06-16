@@ -24,8 +24,9 @@ class ArticleController
     /**
      * GET /api/articles?locale=en&page=1&limit=20
      *
-     * Returns a paginated list of published articles with their
-     * title and URL resolved through the headless structure resolver.
+     * Returns a paginated list of published products with their
+     * title, URL, price, category, image and description resolved
+     * through the headless structure resolver.
      */
     public function listAction(Request $request): Response
     {
@@ -63,8 +64,12 @@ class ArticleController
             $items[] = $this->structureResolver->resolveProperties(
                 $dimensionContent,
                 [
-                    'title' => 'title',
-                    'url'   => 'url',
+                    'title'       => 'title',
+                    'url'         => 'url',
+                    'price'       => 'price',
+                    'category'    => 'category',
+                    'image'       => 'image',
+                    'description' => 'description',
                 ],
                 $locale,
             );

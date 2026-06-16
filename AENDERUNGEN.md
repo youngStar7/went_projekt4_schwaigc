@@ -147,7 +147,73 @@ App\Controller\:
 
 ---
 
-## 6. Zusammenfassung der geänderten Dateien
+## 6. Produkt-Erweiterung des Article-Content-Types (Ziel 1 & 3)
+
+Die Projektziele beschreiben einen **Produkt-Showcase** mit den Feldern Titel,
+Beschreibung, **Preis**, **Bild** und **Kategorie**. Die bisherige Umsetzung
+modellierte jedoch generische Sulu-**Artikel** mit nur `title`, `url` und einem
+Freitext-Feld – Preis, Bild und Kategorie fehlten vollständig (API wie Frontend).
+
+### Lösungsweg
+
+Statt eines eigenen Doctrine-Entity-Modells wurde der **vorhandene Sulu-Article-
+Content-Type zum Produkt ausgebaut**. So bleiben das funktionierende Admin-CRUD
+(Ziel 2) und die bestehende `/api/articles`-Pipeline unverändert nutzbar – es
+sind keine DB-Migration und kein neues Backend-Modell nötig (neue Properties sind
+optional).
+
+### Geänderte Dateien
+
+**`my-sulu-project/config/templates/articles/article.xml`**
+- Neue Felder ergänzt:
+  - `price` (`number`, Schritt 0.01) – **Preis**
+  - `category` (`single_category_selection`) – **Kategorie**
+  - `image` (`single_media_selection`, `types=image`) – **Bild**
+  - `description` (`text_area`) – **Beschreibung**
+- Meta-Titel von „Artikel/Article" auf **„Produkt/Product"** geändert.
+- `title`, `url` und der Freitext (jetzt „Details") bleiben erhalten.
+
+**`my-sulu-project/src/Controller/Website/ArticleController.php`**
+- Der `StructureResolver` löst in der Listen-API zusätzlich `price`, `category`,
+  `image` und `description` auf (zuvor nur `title`, `url`).
+
+**`frontend/src/lib/sulu.ts`**
+- Neue Typen `SuluMedia`, `SuluCategory`, `SuluProductFields`; `SuluArticleItem`
+  und `SuluPage` um die Produktfelder erweitert.
+- Helfer `mediaUrl()` (relative Backend-Media-URL → absolut) und `formatPrice()`
+  (EUR-Formatierung, Locale `de-AT`).
+
+**`frontend/src/components/ArticleCard.tsx`**
+- Produktkarte zeigt nun Bild, Kategorie-Label, Titel, Beschreibung und Preis.
+
+**`frontend/src/components/PageContent.tsx`**
+- Detailansicht zeigt Kategorie, Bild, Preis und Beschreibung zusätzlich zum
+  Detailtext.
+
+**`frontend/src/app/articles/page.tsx`**
+- Nutzersichtbare Beschriftungen „Artikel" → **„Produkte"** (Titel, Leerzustand,
+  Fehlermeldung, Gesamtzähler).
+
+### Designentscheidung Bild
+
+Für die Produktbilder wird ein normales `<img>`-Element verwendet (nicht
+`next/image`). Bei einem lokalen Sulu-Backend mit dynamischen Media-Format-URLs
+ist das robuster und kann den Build nicht brechen; eine Anpassung von
+`next.config.ts` (`remotePatterns`) war dadurch **nicht** erforderlich.
+
+### Verifikation
+
+- PHP-Lint des Controllers: *No syntax errors detected*.
+- `article.xml`: XML wohlgeformt.
+- Frontend-Typprüfung `tsc --noEmit`: fehlerfrei.
+
+> Damit die Daten sichtbar werden: nach dem Deploy `php bin/console cache:clear`,
+> ggf. Kategorien unter *Einstellungen → Kategorien* anlegen, Produkte mit
+> Preis/Bild/Kategorie/Beschreibung pflegen und **veröffentlichen**.
+
+---
+
+## 7. Zusammenfassung der geänderten Dateien
 
 | Datei | Art | Zweck |
 |-------|-----|-------|
@@ -160,10 +226,16 @@ App\Controller\:
 | `frontend/pnpm-lock.yaml` | geändert | Lockfile-Update |
 | `frontend/tsconfig.json` | geändert | von Next 16 angepasst |
 | `.gitignore` | neu | DB-Dumps ignorieren |
+| `my-sulu-project/config/templates/articles/article.xml` | geändert | Produktfelder (Preis, Bild, Kategorie, Beschreibung) |
+| `my-sulu-project/src/Controller/Website/ArticleController.php` | geändert | API löst Produktfelder auf |
+| `frontend/src/lib/sulu.ts` | geändert | Produkt-Typen + `mediaUrl`/`formatPrice` |
+| `frontend/src/components/ArticleCard.tsx` | geändert | Produktkarte mit Bild/Preis/Kategorie |
+| `frontend/src/components/PageContent.tsx` | geändert | Produktfelder in Detailansicht |
+| `frontend/src/app/articles/page.tsx` | geändert | Labels „Artikel" → „Produkte" |
 
 ---
 
-## 7. Offene Hinweise / Empfehlungen
+## 8. Offene Hinweise / Empfehlungen
 
 - **Headless-Bundle-Constraint**: In `my-sulu-project/composer.json` steht
   `"sulu/headless-bundle": "*"`. Empfehlung: auf `^3.0` pinnen

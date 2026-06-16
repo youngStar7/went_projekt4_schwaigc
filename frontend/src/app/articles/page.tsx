@@ -2,7 +2,7 @@ import { fetchArticles } from "@/lib/sulu";
 import ArticleCard from "@/components/ArticleCard";
 import type { Metadata } from "next";
 
-export const metadata: Metadata = { title: "Artikel" };
+export const metadata: Metadata = { title: "Produkte" };
 
 interface Props {
   searchParams: Promise<{ page?: string }>;
@@ -18,8 +18,8 @@ export default async function ArticlesPage({ searchParams }: Props) {
   } catch {
     return (
       <div className="error-box">
-        <strong>Artikel konnten nicht geladen werden.</strong>
-        <p>Stelle sicher, dass das Sulu-Backend läuft und Artikel veröffentlicht sind.</p>
+        <strong>Produkte konnten nicht geladen werden.</strong>
+        <p>Stelle sicher, dass das Sulu-Backend läuft und Produkte veröffentlicht sind.</p>
       </div>
     );
   }
@@ -28,11 +28,11 @@ export default async function ArticlesPage({ searchParams }: Props) {
 
   return (
     <section>
-      <h1 className="page-title">Artikel</h1>
+      <h1 className="page-title">Produkte</h1>
 
       {articles.length === 0 ? (
         <p style={{ color: "#999" }}>
-          Noch keine Artikel vorhanden. Erstelle Artikel im Sulu-Admin und veröffentliche sie.
+          Noch keine Produkte vorhanden. Erstelle Produkte im Sulu-Admin und veröffentliche sie.
         </p>
       ) : (
         <>
@@ -88,7 +88,7 @@ export default async function ArticlesPage({ searchParams }: Props) {
               color: "#999",
             }}
           >
-            {data.total} Artikel gesamt
+            {data.total} Produkte gesamt
           </p>
         </>
       )}

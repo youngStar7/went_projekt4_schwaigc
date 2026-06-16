@@ -25,6 +25,32 @@ export interface SuluExtension {
   excerpt?: SuluExcerpt;
 }
 
+/** A single resolved media item (e.g. a product image) from the Headless Bundle. */
+export interface SuluMedia {
+  id: number;
+  title?: string;
+  description?: string;
+  name?: string;
+  mimeType?: string;
+  /** Relative path on the Sulu backend, e.g. "/media/12/download/foo.jpg?v=1". */
+  url: string;
+}
+
+/** A resolved category (partialCategory serialization group). */
+export interface SuluCategory {
+  id: number;
+  key?: string;
+  name?: string;
+}
+
+/** Product fields shared by list items and detail pages. */
+export interface SuluProductFields {
+  price?: number | string | null;
+  category?: SuluCategory | null;
+  image?: SuluMedia | null;
+  description?: string;
+}
+
 /** Full page / article response from the Sulu Headless Bundle */
 export interface SuluPage {
   id: string;
@@ -34,6 +60,7 @@ export interface SuluPage {
     title?: string;
     article?: string;
     url?: string;
+  } & SuluProductFields & {
     [key: string]: unknown;
   };
   view: Record<string, unknown>;
@@ -43,7 +70,7 @@ export interface SuluPage {
   created?: string;
 }
 
-/** Article list item returned by GET /api/articles */
+/** Product list item returned by GET /api/articles */
 export interface SuluArticleItem {
   id: string;
   type: string;
@@ -51,7 +78,7 @@ export interface SuluArticleItem {
   content: {
     title?: string;
     url?: string;
-  };
+  } & SuluProductFields;
 }
 
 /** Navigation item from GET /api/navigations/{context} */
@@ -88,6 +115,25 @@ function assertJson(res: Response): void {
 /** Resolve a Sulu url field to a path string. */
 export function resolveUrl(url: string | undefined | null): string | null {
   return url ?? null;
+}
+
+/** Absolute URL for a resolved Sulu media item (its `url` is relative to the backend). */
+export function mediaUrl(media: SuluMedia | null | undefined): string | null {
+  if (!media?.url) return null;
+  return media.url.startsWith("http") ? media.url : `${API_URL}${media.url}`;
+}
+
+/** Format a product price (number or numeric string) as EUR. */
+export function formatPrice(
+  price: number | string | null | undefined
+): string | null {
+  if (price === null || price === undefined || price === "") return null;
+  const value = typeof price === "number" ? price : Number(price);
+  if (Number.isNaN(value)) return null;
+  return new Intl.NumberFormat("de-AT", {
+    style: "currency",
+    currency: "EUR",
+  }).format(value);
 }
 
 // ─── Page content ─────────────────────────────────────────────────────────────
