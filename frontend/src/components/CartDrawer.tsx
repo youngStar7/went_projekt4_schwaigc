@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import Link from 'next/link';
 import { useCart } from './Providers';
 
 export default function CartDrawer() {
@@ -110,15 +111,19 @@ export default function CartDrawer() {
               <span style={{ fontFamily: 'var(--serif)', fontSize: 20 }}>{fmt(total)}</span>
             </div>
             <p style={{ fontSize: 11, color: 'var(--text-light)', marginBottom: 20 }}>Versand & Steuern werden beim Checkout berechnet</p>
-            <button style={{
-              width: '100%', padding: '14px 24px',
-              background: 'var(--text)', color: 'white',
-              border: 'none', cursor: 'pointer',
-              fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase',
-              transition: 'background 0.2s',
-            }}>
+            <Link
+              href="/checkout"
+              onClick={close}
+              style={{
+                display: 'block', width: '100%', padding: '14px 24px',
+                background: 'var(--text)', color: 'white', textAlign: 'center',
+                border: 'none', cursor: 'pointer',
+                fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase',
+                transition: 'background 0.2s',
+              }}
+            >
               Zur Kasse
-            </button>
+            </Link>
           </div>
         )}
       </div>
