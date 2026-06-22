@@ -50,3 +50,22 @@ export async function logoutAction() {
   });
   redirect('/login');
 }
+
+export async function updateNameAction(_prev: unknown, formData: FormData) {
+  const name = (formData.get('name') as string)?.trim();
+  if (!name || name.length < 2) return { error: 'Name muss mindestens 2 Zeichen lang sein.' };
+
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session) return { error: 'Nicht angemeldet.' };
+
+  try {
+    await auth.api.updateUser({
+      body: { name },
+      headers: await headers(),
+    });
+  } catch {
+    return { error: 'Name konnte nicht gespeichert werden.' };
+  }
+
+  return { success: true };
+}
