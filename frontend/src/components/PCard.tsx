@@ -3,14 +3,15 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { useCart } from './Providers';
+
 import type { Product } from '@/lib/products';
 
 const fmt = (n: number) =>
   new Intl.NumberFormat('de-AT', { style: 'currency', currency: 'EUR' }).format(n);
 
 export default function PCard({ p }: { p: Product }) {
-  const { addItem } = useCart();
-  const [liked, setLiked] = useState(false);
+  const { addItem, toggleFavourite, isFavourite } = useCart();
+  const liked = isFavourite(p.id);
   const [hov, setHov] = useState(false);
   const [adding, setAdding] = useState(false);
 
@@ -57,7 +58,7 @@ export default function PCard({ p }: { p: Product }) {
 
           {/* Like button */}
           <button
-            onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLiked(l => !l); }}
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleFavourite(p.id); }}
             style={{
               position: 'absolute', top: 12, right: 12,
               width: 32, height: 32, borderRadius: '50%',
