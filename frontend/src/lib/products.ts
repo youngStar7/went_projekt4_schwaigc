@@ -12,6 +12,7 @@ export interface Product {
   mat?: string;
   clrs?: string[];
   image?: string | null;
+  details?: string;
 }
 
 export const CATEGORY_COLORS: Record<string, string> = {
@@ -62,15 +63,18 @@ function articleToProduct(a: SuluArticleItem): Product {
 
 function pageToProduct(p: SuluPage): Product {
   const catName = (p.content.category as { name?: string } | null | undefined)?.name ?? '';
+  const title = p.content.title ?? 'Produkt';
+  const tag = BESTSELLER_TITLES.has(title) ? 'Bestseller' : NEU_TITLES.has(title) ? 'Neu' : '';
   return {
     id: p.id,
-    name: p.content.title ?? 'Produkt',
+    name: title,
     cat: catName,
     price: Number(p.content.price ?? 0),
-    tag: '',
+    tag,
     c: CATEGORY_COLORS[catName] ?? '#9a9080',
     desc: (p.content.description as string | undefined) ?? '',
     image: p.content.image ? mediaUrl(p.content.image) : null,
+    details: (p.content.article as string | undefined) ?? undefined,
   };
 }
 

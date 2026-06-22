@@ -108,6 +108,17 @@ export default function ProductDetailClient({ product: p, related }: { product: 
             </div>
           )}
 
+          {/* Details HTML vom CMS */}
+          {p.details && (
+            <div
+              dangerouslySetInnerHTML={{ __html: p.details }}
+              style={{
+                fontSize: 13, color: 'var(--text-mid)', lineHeight: 1.9,
+                marginBottom: 32, maxWidth: 420,
+              }}
+            />
+          )}
+
           {/* Qty + Add to cart */}
           <div style={{ display: 'flex', gap: 12 }}>
             <div style={{ display: 'flex', border: '1px solid var(--border-strong)' }}>
