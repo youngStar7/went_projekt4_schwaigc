@@ -45,12 +45,20 @@ const NEU_TITLES = new Set([
   'Bürostuhl Ergo',
 ]);
 
+/** Extract the URL slug from a Sulu content.url like "/produkte/bett-nora" → "bett-nora" */
+function slugFromUrl(url: string | undefined | null): string | null {
+  if (!url) return null;
+  const parts = url.split('/').filter(Boolean);
+  return parts[parts.length - 1] ?? null;
+}
+
 function articleToProduct(a: SuluArticleItem): Product {
   const catName = (a.content.category as { name?: string } | null | undefined)?.name ?? '';
   const title = a.content.title ?? 'Produkt';
   const tag = BESTSELLER_TITLES.has(title) ? 'Bestseller' : NEU_TITLES.has(title) ? 'Neu' : '';
+  const slug = slugFromUrl(a.content.url) ?? a.id;
   return {
-    id: a.id,
+    id: slug,
     name: title,
     cat: catName,
     price: Number(a.content.price ?? 0),
@@ -65,8 +73,9 @@ function pageToProduct(p: SuluPage): Product {
   const catName = (p.content.category as { name?: string } | null | undefined)?.name ?? '';
   const title = p.content.title ?? 'Produkt';
   const tag = BESTSELLER_TITLES.has(title) ? 'Bestseller' : NEU_TITLES.has(title) ? 'Neu' : '';
+  const slug = slugFromUrl(p.content.url) ?? p.id;
   return {
-    id: p.id,
+    id: slug,
     name: title,
     cat: catName,
     price: Number(p.content.price ?? 0),
@@ -95,9 +104,9 @@ export async function getBestsellers(locale = 'de'): Promise<Product[]> {
   return all.filter(p => p.tag === 'Bestseller').slice(0, 8);
 }
 
-export async function getProductById(id: string, locale = 'de'): Promise<Product | null> {
+export async function getProductById(slug: string, locale = 'de'): Promise<Product | null> {
   try {
-    const page = await fetchPage(`/api/articles/${id}`, locale);
+    const page = await fetchPage(`/produkte/${slug}`, locale);
     if (!page) return null;
     return pageToProduct(page);
   } catch {
