@@ -11,7 +11,11 @@ const NAV = [
   { label: 'Über uns', href: '/' },
 ];
 
-export default function Navbar() {
+interface NavbarProps {
+  isLoggedIn?: boolean;
+}
+
+export default function Navbar({ isLoggedIn = false }: NavbarProps) {
   const pathname = usePathname();
   const { count, open } = useCart();
   const [scrolled, setScrolled] = useState(false);
@@ -21,6 +25,9 @@ export default function Navbar() {
     window.addEventListener('scroll', fn, { passive: true });
     return () => window.removeEventListener('scroll', fn);
   }, []);
+
+  const userHref = isLoggedIn ? '/dashboard' : '/login';
+  const isUserActive = pathname === '/dashboard' || pathname === '/login';
 
   return (
     <nav style={{
@@ -66,10 +73,20 @@ export default function Navbar() {
           </button>
 
           {/* User */}
-          <Link href="/login" style={{ color: pathname === '/dashboard' ? 'var(--sage)' : 'var(--text-light)', display: 'flex' }}>
+          <Link href={userHref} style={{
+            color: isUserActive ? 'var(--sage)' : 'var(--text-light)',
+            display: 'flex', position: 'relative',
+          }}>
             <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx={12} cy={7} r={4} />
             </svg>
+            {isLoggedIn && (
+              <span style={{
+                position: 'absolute', top: -3, right: -4,
+                width: 6, height: 6, borderRadius: '50%',
+                background: 'var(--sage)', border: '1.5px solid white',
+              }} />
+            )}
           </Link>
 
           {/* Cart */}

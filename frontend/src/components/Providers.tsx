@@ -68,7 +68,7 @@ export function useCart(): CartCtx {
   return c;
 }
 
-export default function Providers({ children }: { children: ReactNode }) {
+export default function Providers({ children, isLoggedIn }: { children: ReactNode; isLoggedIn?: boolean }) {
   const [state, dispatch] = useReducer(reducer, { items: [], isOpen: false });
 
   const ctx: CartCtx = {
@@ -85,7 +85,7 @@ export default function Providers({ children }: { children: ReactNode }) {
 
   return (
     <Ctx.Provider value={ctx}>
-      <Navbar />
+      <Navbar isLoggedIn={isLoggedIn} />
       {state.isOpen && <CartDrawer />}
       {children}
     </Ctx.Provider>
