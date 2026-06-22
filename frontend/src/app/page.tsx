@@ -1,3 +1,5 @@
+export const revalidate = 60;
+
 import Hero from '@/components/Hero';
 import Banner from '@/components/Banner';
 import Bestsellers from '@/components/Bestsellers';

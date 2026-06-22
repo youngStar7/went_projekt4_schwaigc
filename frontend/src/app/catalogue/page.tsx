@@ -4,6 +4,7 @@ import CatalogueClient from './CatalogueClient';
 import { getProducts } from '@/lib/products';
 import type { Metadata } from 'next';
 
+export const revalidate = 60;
 export const metadata: Metadata = { title: 'Kollektion' };
 
 interface Props {
