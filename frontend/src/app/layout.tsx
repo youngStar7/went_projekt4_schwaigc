@@ -1,30 +1,21 @@
-import type { Metadata } from "next";
-import "./globals.css";
-import { fetchNavigation } from "@/lib/sulu";
-import Navigation from "@/components/Navigation";
+import type { Metadata } from 'next';
+import './globals.css';
+import { headers } from 'next/headers';
+import { auth } from '@/lib/auth';
+import Providers from '@/components/Providers';
 
 export const metadata: Metadata = {
-  title: "Sulu Website",
-  description: "Powered by Sulu CMS + Next.js",
+  title: { default: 'Noven — Möbel', template: '%s | Noven' },
+  description: 'Designmöbel mit individueller Ästhetik, Handwerkskunst und zeitlosem Design.',
 };
 
-export default async function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const navItems = await fetchNavigation("main", "en");
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const session = await auth.api.getSession({ headers: await headers() });
 
   return (
-    <html lang="en">
+    <html lang="de">
       <body>
-        <header className="site-header">
-          <div className="header-inner">
-            <a href="/" className="site-logo">Sulu Site</a>
-            <Navigation items={navItems} />
-          </div>
-        </header>
-        <main>{children}</main>
+        <Providers isLoggedIn={!!session}>{children}</Providers>
       </body>
     </html>
   );
