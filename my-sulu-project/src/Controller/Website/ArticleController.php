@@ -34,21 +34,35 @@ class ArticleController
         $page   = max(1, $request->query->getInt('page', 1));
         $limit  = min(100, max(1, $request->query->getInt('limit', 20)));
 
-        $articles = $this->articleRepository->findBy(
+        $total = $this->articleRepository->countBy([
+            'locale' => $locale,
+            'stage'  => DimensionContentInterface::STAGE_LIVE,
+        ]);
+
+        // Paginate over the distinct article identifiers first. Loading the
+        // full content directly with a SQL LIMIT would apply that limit to the
+        // joined dimension-content rows (one article spans several rows), so
+        // fewer articles than requested would be returned. We therefore page
+        // on DISTINCT uuids and then load only that page's content by uuid.
+        $identifiers = \iterator_to_array($this->articleRepository->findIdentifiersBy(
             [
                 'locale' => $locale,
                 'stage'  => DimensionContentInterface::STAGE_LIVE,
                 'page'   => $page,
                 'limit'  => $limit,
             ],
-            ['id' => 'desc'],
+            ['created' => 'desc'],
+        ));
+
+        $articles = [] === $identifiers ? [] : $this->articleRepository->findBy(
+            [
+                'locale' => $locale,
+                'stage'  => DimensionContentInterface::STAGE_LIVE,
+                'uuids'  => $identifiers,
+            ],
+            ['created' => 'desc'],
             [ArticleRepositoryInterface::GROUP_SELECT_ARTICLE_WEBSITE => true],
         );
-
-        $total = $this->articleRepository->countBy([
-            'locale' => $locale,
-            'stage'  => DimensionContentInterface::STAGE_LIVE,
-        ]);
 
         $items = [];
         foreach ($articles as $article) {

@@ -57,19 +57,7 @@ Status prüfen, bis `healthy`:
 docker compose ps
 ```
 
-### Schritt 2 – Datenbank-Inhalt einspielen
-
-Der vorhandene Dump enthält alle Inhalte (Seiten, Artikel, Medien – 92 Tabellen):
-
-```bash
-# Windows / PowerShell oder Git-Bash – im Projekt-Root
-docker exec -i sulu-mariadb mariadb -usulu -psulu sulu < backup_sulu_10.6.sql
-```
-
-> Liegt kein Dump vor, kann das Schema stattdessen frisch erzeugt werden
-> (siehe Schritt 3, Variante „leere DB").
-
-### Schritt 3 – Backend (Sulu / Symfony) einrichten
+### Schritt 2 – Backend (Sulu / Symfony) einrichten
 
 ```bash
 cd my-sulu-project
@@ -87,17 +75,44 @@ APP_ENV=dev
 DATABASE_URL="mysql://sulu:sulu@127.0.0.1:3306/sulu?serverVersion=mariadb-11.4.12&charset=utf8mb4"
 ```
 
-**Variante A – Dump wurde eingespielt (Schritt 2):** nichts weiter nötig, die
-Daten sind bereits vorhanden.
+### Schritt 3 – Datenbank befüllen
 
-**Variante B – leere Datenbank:** Schema aufbauen und Sulu initialisieren:
+Es gibt zwei Wege. **Variante A ist empfohlen** (reproduzierbar, kein Dump nötig –
+genau dafür gibt es die Schema-Migration und das Seed-Command).
+
+**Variante A – frisch aus Migration + Seed (empfohlen):**
 
 ```bash
-php bin/console doctrine:database:create --if-not-exists
-php bin/console doctrine:migrations:migrate --no-interaction
-php bin/adminconsole sulu:build dev          # initialisiert Sulu (Index, Snippets …)
-php bin/console sulu:security:user:create     # Admin-Benutzer anlegen
+# im Ordner my-sulu-project/
+php bin/console doctrine:migrations:migrate --no-interaction   # Schema: 92 Tabellen aus der Baseline-Migration
+php bin/console sulu:security:init                             # Security-Entities
+php bin/console sulu:page:initialize                           # Homepage pro Webspace/Sprache
+php bin/console sulu:media:init                                # Medien-Typen / Upload-Verzeichnis
+php bin/console sulu:security:user:create                      # Admin-Benutzer anlegen (wird id 1)
+php bin/console app:seed-demo                                  # Demo-Inhalte: Kategorien, 12 Produkte (Bild/Preis/Kategorie), Startseiten-Text
 ```
+
+> Das Command `app:seed-demo` ist idempotent: Kategorien/Collection werden
+> wiederverwendet, Produkte nur angelegt, wenn der Katalog noch leer ist
+> (`--force` erzwingt das erneute Seeden). Es benötigt eine zuvor per
+> `sulu:page:initialize` erzeugte Homepage und einen Admin-Benutzer (id 1).
+
+**Variante B – bestehenden DB-Dump einspielen (optional):**
+
+Liegt ein SQL-Dump vor, kann er stattdessen direkt importiert werden (enthält dann
+bereits alle Inhalte):
+
+```bash
+# im Projekt-Root
+docker exec -i sulu-mariadb mariadb -usulu -psulu sulu < dump.sql
+```
+
+> Wurde die DB aus einem Dump aufgebaut, der die Schema-Migration noch nicht
+> kennt, die Baseline einmalig als „angewendet" markieren (ändert nur Metadaten):
+> ```bash
+> php bin/console doctrine:migrations:sync-metadata-storage --no-interaction
+> php bin/console doctrine:migrations:version --add "DoctrineMigrations\Version20260101000000" --no-interaction
+> ```
 
 ### Schritt 4 – Frontend (Next.js) einrichten
 
