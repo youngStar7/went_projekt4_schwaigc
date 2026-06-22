@@ -44,6 +44,25 @@ export default function CheckoutPage() {
     vorname: '', nachname: '', email: '', telefon: '',
     strasse: '', nr: '', plz: '', stadt: '', land: 'Österreich',
   });
+
+  // Pre-fill delivery address from saved profile
+  useEffect(() => {
+    fetch('/api/user/profile')
+      .then(r => r.ok ? r.json() : null)
+      .then((p: { phone?: string; strasse?: string; nr?: string; plz?: string; stadt?: string; land?: string } | null) => {
+        if (!p) return;
+        setAddr(a => ({
+          ...a,
+          ...(p.phone && { telefon: p.phone }),
+          ...(p.strasse && { strasse: p.strasse }),
+          ...(p.nr && { nr: p.nr }),
+          ...(p.plz && { plz: p.plz }),
+          ...(p.stadt && { stadt: p.stadt }),
+          ...(p.land && { land: p.land }),
+        }));
+      })
+      .catch(() => {});
+  }, []);
   const [card, setCard] = useState({ nr: '', name: '', exp: '', cvc: '' });
 
   const setA = (k: keyof typeof addr) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
