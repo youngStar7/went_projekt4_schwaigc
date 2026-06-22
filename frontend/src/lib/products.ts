@@ -24,12 +24,12 @@ export const CATEGORY_COLORS: Record<string, string> = {
 };
 
 export const CATEGORIES = [
-  { name: 'Stühle', color: '#c8c0b0', count: 12 },
-  { name: 'Tische', color: '#a08868', count: 8 },
-  { name: 'Sofas', color: '#b8b0a8', count: 6 },
-  { name: 'Schränke', color: '#706050', count: 9 },
+  { name: 'Stühle', color: '#c8c0b0', count: 7 },
+  { name: 'Tische', color: '#a08868', count: 6 },
+  { name: 'Sofas', color: '#b8b0a8', count: 5 },
+  { name: 'Schränke', color: '#706050', count: 6 },
   { name: 'Betten', color: '#c0b098', count: 5 },
-  { name: 'Regale', color: '#a89880', count: 7 },
+  { name: 'Regale', color: '#a89880', count: 6 },
 ];
 
 function articleToProduct(a: SuluArticleItem): Product {
