@@ -2,15 +2,10 @@ import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
 import LogoutButton from './LogoutButton';
+import DashboardTabs from './DashboardTabs';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = { title: 'Mein Konto — Noven' };
-
-const ORDERS = [
-  { id: '#NV-2025-001', name: 'Stuhl Hans × 2', date: '12. Mai 2025', status: 'Geliefert', total: '2.178 €' },
-  { id: '#NV-2025-002', name: 'Tisch Walnut × 1', date: '3. Juni 2025', status: 'In Bearbeitung', total: '2.390 €' },
-  { id: '#NV-2025-003', name: 'Sofa Lune × 1', date: '18. Juni 2025', status: 'Versandt', total: '3.290 €' },
-];
 
 export default async function DashboardPage() {
   const session = await auth.api.getSession({ headers: await headers() });
@@ -69,62 +64,9 @@ export default async function DashboardPage() {
           ))}
         </div>
 
-        {/* Orders */}
-        <div style={{ background: 'var(--white)', padding: '36px' }}>
-          <h2 style={{ fontFamily: 'var(--serif)', fontSize: 24, fontWeight: 400, marginBottom: 28 }}>
-            Bestellverlauf
-          </h2>
+        {/* Tabs: Bestellverlauf | Persönliche Daten | Lieferadresse */}
+        <DashboardTabs name={user.name ?? ''} email={user.email} />
 
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead>
-              <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                {['Bestellnr.', 'Produkt', 'Datum', 'Status', 'Summe'].map(h => (
-                  <th key={h} style={{
-                    padding: '12px 0', textAlign: 'left',
-                    fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase',
-                    color: 'var(--text-light)', fontWeight: 400,
-                  }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {ORDERS.map(o => (
-                <tr key={o.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                  <td style={{ padding: '18px 0', fontSize: 12, color: 'var(--text-mid)', fontFamily: 'monospace' }}>{o.id}</td>
-                  <td style={{ padding: '18px 0', fontSize: 13 }}>{o.name}</td>
-                  <td style={{ padding: '18px 0', fontSize: 12, color: 'var(--text-mid)' }}>{o.date}</td>
-                  <td style={{ padding: '18px 0' }}>
-                    <span style={{
-                      fontSize: 10, letterSpacing: '0.08em', textTransform: 'uppercase',
-                      padding: '4px 10px',
-                      background: o.status === 'Geliefert' ? 'var(--sage-bg)' : o.status === 'Versandt' ? '#f0eee8' : '#f5f0e8',
-                      color: o.status === 'Geliefert' ? 'var(--sage-dark)' : 'var(--text-mid)',
-                    }}>
-                      {o.status}
-                    </span>
-                  </td>
-                  <td style={{ padding: '18px 0', fontSize: 13, fontWeight: 500 }}>{o.total}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Account settings teaser */}
-        <div style={{ marginTop: 20, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
-          {[
-            { title: 'Persönliche Daten', desc: 'Name und E-Mail-Adresse verwalten' },
-            { title: 'Lieferadressen', desc: 'Gespeicherte Adressen bearbeiten' },
-          ].map(card => (
-            <div key={card.title} style={{ background: 'var(--white)', padding: '28px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div>
-                <p style={{ fontSize: 13, fontWeight: 500, marginBottom: 4 }}>{card.title}</p>
-                <p style={{ fontSize: 12, color: 'var(--text-light)' }}>{card.desc}</p>
-              </div>
-              <span style={{ color: 'var(--text-light)', fontSize: 20 }}>→</span>
-            </div>
-          ))}
-        </div>
       </div>
     </div>
   );
