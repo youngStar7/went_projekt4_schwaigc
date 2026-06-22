@@ -28,3 +28,7 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+
+    # Sulu does not autowire the collection manager interface – alias it so the
+    # demo seed command (App\Command\SeedDemoCommand) can depend on it.
+    Sulu\Bundle\MediaBundle\Collection\Manager\CollectionManagerInterface: '@sulu_media.collection_manager'

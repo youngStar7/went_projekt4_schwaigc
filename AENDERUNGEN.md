@@ -256,3 +256,69 @@ ist das robuster und kann den Build nicht brechen; eine Anpassung von
 | **MariaDB** | **11.4.12 (LTS)** |
 | **Next.js** | **16.2.9** |
 | React | 19.x |
+
+---
+
+## 9. Demo-Inhalte (Seed-Command) & Pagination-Fix (Ziel 1 & 3)
+
+Beim End-to-End-Test (DB → Symfony-API → Next.js) zeigte sich: Der gesamte
+Stack läuft und das Frontend rendert korrekt aus dem CMS – es fehlte aber
+**Inhalt**. Das CMS enthielt nur ein leeres Test-Produkt, die Startseite zeigte
+„Keine Inhalte für Template homepage gefunden". Der Projektantrag fordert jedoch
+**mindestens 10 Produkte** (Titel, Beschreibung, Preis, Bild, Kategorie).
+
+### Neues Seed-Command (reproduzierbar statt manueller Admin-Pflege)
+
+**`my-sulu-project/src/Command/SeedDemoCommand.php`** (neu) – Konsolen-Command
+`app:seed-demo`, das die Demo-Inhalte programmatisch über die offiziellen
+Sulu-3-Services anlegt (genau der Weg, den auch der Admin nutzt):
+
+- **Kategorien**: `Electronics`, `Books`, `Clothing`, `Home & Living` über den
+  `CategoryManagerInterface` (idempotent via `findByKey`).
+- **Medien**: eine Collection „Product Images" (`CollectionManagerInterface`)
+  und pro Produkt ein mit **GD generiertes** Platzhalter-PNG, hochgeladen über
+  den `MediaManagerInterface` (kein externer Download nötig).
+- **12 Produkte** (> 10 gefordert): erstellt via `CreateArticleMessage` und
+  veröffentlicht via `ApplyWorkflowTransitionArticleMessage`
+  (`publish`-Transition) über den Symfony Messenger (`EnableFlushStamp`).
+  Jedes Produkt hat Titel, URL, Preis, Kategorie, Bild, Beschreibung und einen
+  Detailtext.
+- **Startseite**: Intro-Text wird über `ModifyPageMessage` + Publish gesetzt
+  (bestehende Felder via `ContentManager::normalize` erhalten).
+
+Mehrfaches Ausführen ist sicher: Kategorien/Collection werden wiederverwendet,
+Produkte werden nur angelegt, wenn der Katalog noch nicht gefüllt ist
+(`--force` erzwingt das Seeden).
+
+**`my-sulu-project/config/services.yaml`**
+- Alias ergänzt, da Sulu den `CollectionManagerInterface` nicht autowired:
+  `Sulu\Bundle\MediaBundle\Collection\Manager\CollectionManagerInterface:
+  '@sulu_media.collection_manager'`.
+
+### Bugfix: Listen-API lieferte bei `limit < n` zu wenige Produkte
+
+**`my-sulu-project/src/Controller/Website/ArticleController.php`**
+
+Beim Test fiel auf, dass `GET /api/articles?limit=20` nur **10 von 13** Produkten
+zurückgab (bei `limit=50` aber alle 13). Ursache ist das klassische
+**„LIMIT mit Fetch-Join"-Problem**: Die `findBy`-Abfrage mit dem
+Website-Select-Group joint die Dimension-Content-Zeilen; ein `SQL LIMIT` schneidet
+dann über die *gejointen* Zeilen ab, nicht über die *Artikel*. Da das Frontend
+standardmäßig `limit=20` nutzt, wären drei Produkte unsichtbar gewesen.
+
+**Lösung** (idiomatischer Sulu-Weg): erst über
+`ArticleRepository::findIdentifiersBy` (`SELECT DISTINCT uuid`) paginieren und
+dann nur die UUIDs der jeweiligen Seite per `findBy(['uuids' => …])` mit Inhalt
+laden. Sortierung von `['id' => 'desc']` (wurde still ignoriert) auf das gültige
+Feld `['created' => 'desc']` korrigiert.
+
+### Verifikation
+
+- `php bin/console app:seed-demo` → 4 Kategorien, Collection, **12 Produkte
+  (published)**, Startseiten-Text gesetzt.
+- `GET /api/articles?locale=en&limit=20` → **HTTP 200, 13/13 Produkte**;
+  `?limit=5&page=2` paginiert korrekt.
+- Medien-Download `/media/{id}/download/…png` → **HTTP 200, image/png**.
+- Frontend: `/` zeigt den Intro-Text, `/articles` listet **13 Produkte** mit
+  Bild/Preis/Kategorie, Detailseite `/products/wireless-headphones` zeigt
+  Titel, Preis (89,90 €), Kategorie und Beschreibung.
