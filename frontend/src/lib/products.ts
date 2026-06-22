@@ -74,13 +74,21 @@ function pageToProduct(p: SuluPage): Product {
   };
 }
 
+const TAG_ORDER: Record<string, number> = { Bestseller: 0, Neu: 1, '': 2 };
+
 export async function getProducts(locale = 'de', page = 1, limit = 20): Promise<Product[]> {
   try {
     const data = await fetchArticles(locale, page, limit);
-    return data._embedded.articles.map(articleToProduct);
+    const products = data._embedded.articles.map(articleToProduct);
+    return products.sort((a, b) => (TAG_ORDER[a.tag] ?? 2) - (TAG_ORDER[b.tag] ?? 2));
   } catch {
     return [];
   }
+}
+
+export async function getBestsellers(locale = 'de'): Promise<Product[]> {
+  const all = await getProducts(locale, 1, 100);
+  return all.filter(p => p.tag === 'Bestseller').slice(0, 8);
 }
 
 export async function getProductById(id: string, locale = 'de'): Promise<Product | null> {
