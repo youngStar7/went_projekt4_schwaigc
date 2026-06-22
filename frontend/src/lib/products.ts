@@ -32,14 +32,28 @@ export const CATEGORIES = [
   { name: 'Regale', color: '#a89880', count: 6 },
 ];
 
+const BESTSELLER_TITLES = new Set([
+  'Stuhl Hans', 'Couchtisch Rund', 'Sofa Lune', 'Sideboard Flach',
+  'Bett Holz', 'Bücherregal Stave', 'Polstersessel Berg',
+]);
+
+const NEU_TITLES = new Set([
+  'Essstuhl Clara', 'Beistelltisch Trio', 'Gartentisch Loft',
+  'Sofa Arco', 'Daybed Zen', 'Vitrine Glas', 'Anrichte Bianco',
+  'Hausbar Kuba', 'Bett Nora', 'Kinderbett Wald', 'Wandregal Schreib',
+  'Bürostuhl Ergo',
+]);
+
 function articleToProduct(a: SuluArticleItem): Product {
   const catName = (a.content.category as { name?: string } | null | undefined)?.name ?? '';
+  const title = a.content.title ?? 'Produkt';
+  const tag = BESTSELLER_TITLES.has(title) ? 'Bestseller' : NEU_TITLES.has(title) ? 'Neu' : '';
   return {
     id: a.id,
-    name: a.content.title ?? 'Produkt',
+    name: title,
     cat: catName,
     price: Number(a.content.price ?? 0),
-    tag: '',
+    tag,
     c: CATEGORY_COLORS[catName] ?? '#9a9080',
     desc: (a.content.description as string | undefined) ?? '',
     image: a.content.image ? mediaUrl(a.content.image) : null,
