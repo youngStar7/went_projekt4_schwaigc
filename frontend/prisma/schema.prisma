@@ -65,3 +65,16 @@ model Verification {
 
   @@map("verification")
 }
+
+model UserProfile {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  phone     String?
+  strasse   String?
+  nr        String?
+  plz       String?
+  stadt     String?
+  land      String?
+
+  @@map("user_profile")
+}
