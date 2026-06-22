@@ -22,7 +22,8 @@ export default function ProductDetailClient({
   product: Product;
   related: Product[];
 }) {
-  const { addItem } = useCart();
+  const { addItem, toggleFavourite, isFavourite } = useCart();
+  const liked = isFavourite(p.id);
   const [qty, setQty] = useState(1);
   const [selColor, setSelColor] = useState(0);
   const [added, setAdded] = useState(false);
@@ -213,14 +214,23 @@ export default function ProductDetailClient({
             </button>
           </div>
 
-          <button style={{
-            width: '100%', height: 52,
-            background: 'none', color: 'var(--text)',
-            border: '1px solid var(--border-strong)', cursor: 'pointer',
-            fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase',
-            transition: 'all 0.2s', marginBottom: 36,
-          }}>
-            ♡  Auf Wunschliste
+          <button
+            onClick={() => toggleFavourite(p.id)}
+            style={{
+              width: '100%', height: 52,
+              background: liked ? '#fdf2f2' : 'none',
+              color: liked ? '#c07070' : 'var(--text)',
+              border: `1px solid ${liked ? '#f0c0c0' : 'var(--border-strong)'}`,
+              cursor: 'pointer',
+              fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase',
+              transition: 'all 0.3s', marginBottom: 36,
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+            }}
+          >
+            <svg width={14} height={14} viewBox="0 0 24 24" fill={liked ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={1.5}>
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+            </svg>
+            {liked ? 'Auf Wunschliste' : 'Zur Wunschliste'}
           </button>
 
           {/* Trust signals */}
