@@ -13,9 +13,10 @@ const NAV = [
 
 interface NavbarProps {
   isLoggedIn?: boolean;
+  favCount?: number;
 }
 
-export default function Navbar({ isLoggedIn = false }: NavbarProps) {
+export default function Navbar({ isLoggedIn = false, favCount = 0 }: NavbarProps) {
   const pathname = usePathname();
   const { count, open } = useCart();
   const [scrolled, setScrolled] = useState(false);
@@ -71,6 +72,26 @@ export default function Navbar({ isLoggedIn = false }: NavbarProps) {
               <circle cx={11} cy={11} r={8} /><path d="m21 21-4.35-4.35" />
             </svg>
           </button>
+
+          {/* Favourites */}
+          <Link href="/favourites" style={{
+            color: pathname === '/favourites' ? '#c07070' : 'var(--text-light)',
+            display: 'flex', position: 'relative',
+          }}>
+            <svg width={18} height={18} viewBox="0 0 24 24" fill={pathname === '/favourites' ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={1.5}>
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+            </svg>
+            {favCount > 0 && (
+              <span style={{
+                position: 'absolute', top: -5, right: -7,
+                background: '#c07070', color: 'white', borderRadius: '50%',
+                width: 15, height: 15, fontSize: 8, display: 'flex',
+                alignItems: 'center', justifyContent: 'center', fontWeight: 500,
+              }}>
+                {favCount}
+              </span>
+            )}
+          </Link>
 
           {/* User */}
           <Link href={userHref} style={{
