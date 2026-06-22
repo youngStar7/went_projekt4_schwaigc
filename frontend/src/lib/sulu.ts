@@ -1,5 +1,5 @@
 const API_URL = process.env.SULU_API_URL ?? "http://localhost:8000";
-const DEFAULT_LOCALE = process.env.SULU_DEFAULT_LOCALE ?? "en";
+const DEFAULT_LOCALE = process.env.SULU_DEFAULT_LOCALE ?? "de";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
